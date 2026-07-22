@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PagaBarato — Achados da Shopee, todo dia</title>
+<meta name="description" content="Ofertas da Shopee selecionadas automaticamente, atualizadas todos os dias.">
+
+<!-- Fontes: Space Grotesk (título/marca), Inter (corpo), Space Mono (preços, estilo etiqueta) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  /* ==============================================================
+     TOKENS DE DESIGN
+     Paleta: verde-mata (marca) + rosa-choque (ação/CTA) + mostarda (selo)
+     ============================================================== */
+  :root{
+    --verde-mata: #163B2C;
+    --verde-mata-2: #1F5039;
+    --verde-brilho: #4FD1A5;
+    --creme: #FBF6EC;
+    --rosa-choque: #FF3D68;
+    --rosa-choque-escuro: #D91E4C;
+    --mostarda: #FFB627;
+    --tinta: #14201A;
+    --tinta-suave: #4A5750;
+    --borda: #E4DCC9;
+    --branco: #FFFFFF;
+
+    --fonte-display: 'Space Grotesk', sans-serif;
+    --fonte-corpo: 'Inter', sans-serif;
+    --fonte-mono: 'Space Mono', monospace;
+
+    --raio: 14px;
+    --sombra: 0 10px 30px -12px rgba(20, 32, 26, 0.25);
+  }
+
+  *{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin: 0;
+    background: var(--creme);
+    color: var(--tinta);
+    font-family: var(--fonte-corpo);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a{ color: inherit; }
+
+  :focus-visible{
+    outline: 3px solid var(--verde-brilho);
+    outline-offset: 2px;
+  }
+
+  /* ==============================================================
+     CABEÇALHO
+     ============================================================== */
+  header.topo{
+    background: var(--verde-mata);
+    color: var(--creme);
+    padding: 18px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: var(--sombra);
+  }
+
+  .topo-conteudo{
+    max-width: 1180px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .marca{
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .marca .logo{
+    font-family: var(--fonte-display);
+    font-weight: 700;
+    font-size: 24px;
+    letter-spacing: -0.02em;
+  }
+
+  .marca .logo .paga{ color: var(--creme); }
+  .marca .logo .barato{ color: var(--mostarda); }
+
+  .marca .tagline{
+    font-size: 12.5px;
+    color: rgba(251, 246, 236, 0.65);
+    font-weight: 500;
+  }
+
+  .status-atualizacao{
+    font-family: var(--fonte-mono);
+    font-size: 12px;
+    color: var(--verde-brilho);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .status-atualizacao .ponto{
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--verde-brilho);
+    box-shadow: 0 0 0 0 rgba(79, 209, 165, 0.6);
+    animation: pulsar 2s infinite;
+  }
+
+  @keyframes pulsar{
+    0%{ box-shadow: 0 0 0 0 rgba(79, 209, 165, 0.55); }
+    70%{ box-shadow: 0 0 0 8px rgba(79, 209, 165, 0); }
+    100%{ box-shadow: 0 0 0 0 rgba(79, 209, 165, 0); }
+  }
+
+  /* ==============================================================
+     HERO — a busca é o protagonista, não uma faixa decorativa
+     ============================================================== */
+  .hero{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 56px 24px 28px;
+  }
+
+  .hero h1{
+    font-family: var(--fonte-display);
+    font-weight: 700;
+    font-size: clamp(34px, 5.5vw, 58px);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    margin: 0 0 14px;
+  }
+
+  .hero h1 .risco{
+    text-decoration: line-through;
+    text-decoration-color: var(--rosa-choque);
+    text-decoration-thickness: 4px;
+    color: var(--tinta-suave);
+  }
+
+  .hero p.sub{
+    font-size: 17px;
+    color: var(--tinta-suave);
+    max-width: 540px;
+    margin: 0 0 30px;
+  }
+
+  .barra-controle{
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .campo-busca{
+    flex: 1 1 280px;
+    position: relative;
+  }
+
+  .campo-busca input{
+    width: 100%;
+    padding: 14px 16px 14px 44px;
+    border-radius: 999px;
+    border: 2px solid var(--borda);
+    background: var(--branco);
+    font-family: var(--fonte-corpo);
+    font-size: 15px;
+    color: var(--tinta);
+  }
+
+  .campo-busca input:focus{
+    border-color: var(--verde-mata-2);
+  }
+
+  .campo-busca svg{
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.5;
+  }
+
+  select#ordenacao{
+    padding: 13px 16px;
+    border-radius: 999px;
+    border: 2px solid var(--borda);
+    background: var(--branco);
+    font-family: var(--fonte-corpo);
+    font-size: 14px;
+    color: var(--tinta);
+    cursor: pointer;
+  }
+
+  .contador-resultados{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 24px 8px;
+    font-size: 13.5px;
+    color: var(--tinta-suave);
+    font-family: var(--fonte-mono);
+  }
+
+  /* ==============================================================
+     GRADE DE PRODUTOS
+     ============================================================== */
+  main.vitrine{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 12px 24px 80px;
+  }
+
+  .grade{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 22px;
+  }
+
+  .card{
+    background: var(--branco);
+    border-radius: var(--raio);
+    overflow: hidden;
+    box-shadow: var(--sombra);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    border: 1px solid var(--borda);
+  }
+
+  .card:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 16px 34px -14px rgba(20, 32, 26, 0.32);
+  }
+
+  .card-imagem{
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background: #f1ede1;
+    overflow: hidden;
+  }
+
+  .card-imagem img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Selo "carimbo" de desconto — elemento de assinatura da marca */
+  .selo-desconto{
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--mostarda);
+    color: var(--tinta);
+    font-family: var(--fonte-mono);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 2px dashed rgba(20, 32, 26, 0.55);
+    transform: rotate(-7deg);
+    letter-spacing: 0.02em;
+  }
+
+  .card-corpo{
+    padding: 16px 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+  }
+
+  .card-titulo{
+    font-size: 14.5px;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--tinta);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.7em;
+  }
+
+  /* Etiqueta de preço com "furinho", estilo pistola precificadora */
+  .etiqueta-preco{
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .preco-original{
+    font-family: var(--fonte-mono);
+    font-size: 12.5px;
+    color: var(--tinta-suave);
+    text-decoration: line-through;
+  }
+
+  .preco-atual{
+    font-family: var(--fonte-mono);
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--verde-mata-2);
+    background: rgba(79, 209, 165, 0.14);
+    padding: 3px 10px 3px 16px;
+    border-radius: 4px;
+    -webkit-mask-image: radial-gradient(circle 3.5px at 8px 50%, transparent 99%, black 100%);
+            mask-image: radial-gradient(circle 3.5px at 8px 50%, transparent 99%, black 100%);
+  }
+
+  .botao-comprar{
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--rosa-choque);
+    color: var(--branco);
+    font-family: var(--fonte-corpo);
+    font-weight: 600;
+    font-size: 14.5px;
+    text-decoration: none;
+    padding: 12px 16px;
+    border-radius: 10px;
+    transition: background 0.15s ease;
+  }
+
+  .botao-comprar:hover{
+    background: var(--rosa-choque-escuro);
+  }
+
+  /* ==============================================================
+     ESTADOS: carregando / vazio / erro
+     ============================================================== */
+  .estado{
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 70px 20px;
+    color: var(--tinta-suave);
+  }
+
+  .estado h2{
+    font-family: var(--fonte-display);
+    font-size: 22px;
+    color: var(--tinta);
+    margin: 0 0 8px;
+  }
+
+  .estado p{ margin: 0; font-size: 14.5px; }
+
+  .esqueleto{
+    background: var(--branco);
+    border-radius: var(--raio);
+    overflow: hidden;
+    border: 1px solid var(--borda);
+  }
+
+  .esqueleto .bloco{
+    background: linear-gradient(90deg, #efe9da 25%, #f7f3e8 37%, #efe9da 63%);
+    background-size: 400% 100%;
+    animation: brilho 1.4s ease infinite;
+  }
+
+  .esqueleto .bloco.img{ aspect-ratio: 1/1; }
+  .esqueleto .bloco.linha{ height: 12px; margin: 16px 16px 0; border-radius: 4px; }
+  .esqueleto .bloco.linha.curta{ width: 60%; margin-bottom: 16px; }
+
+  @keyframes brilho{
+    0%{ background-position: 100% 50%; }
+    100%{ background-position: 0 50%; }
+  }
+
+  /* ==============================================================
+     RODAPÉ
+     ============================================================== */
+  footer{
+    background: var(--verde-mata);
+    color: rgba(251, 246, 236, 0.7);
+    padding: 34px 24px;
+    font-size: 13px;
+  }
+
+  footer .rodape-conteudo{
+    max-width: 1180px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  footer strong{ color: var(--creme); }
+
+  @media (max-width: 560px){
+    .hero{ padding-top: 40px; }
+    .topo-conteudo{ justify-content: center; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topo">
+  <div class="topo-conteudo">
+    <div class="marca">
+      <span class="logo"><span class="paga">Paga</span><span class="barato">Barato</span></span>
+      <span class="tagline">achados da Shopee, todo dia</span>
+    </div>
+    <div class="status-atualizacao" id="statusAtualizacao">
+      <span class="ponto"></span>
+      <span id="textoStatus">conectando à planilha...</span>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>Achou. <span class="risco">Pagou caro?</span><br>Não aqui.</h1>
+  <p class="sub">Ofertas da Shopee, escolhidas e atualizadas automaticamente todos os dias. Você clica, a gente te leva direto pra oferta.</p>
+
+  <div class="barra-controle">
+    <div class="campo-busca">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" id="campoBusca" placeholder="Buscar produto, ex: fone bluetooth..." autocomplete="off">
+    </div>
+    <select id="ordenacao">
+      <option value="desconto">Maior desconto</option>
+      <option value="menor-preco">Menor preço</option>
+      <option value="maior-preco">Maior preço</option>
+      <option value="recentes">Mais recentes</option>
+    </select>
+  </div>
+</section>
+
+<p class="contador-resultados" id="contadorResultados"></p>
+
+<main class="vitrine">
+  <div class="grade" id="grade">
+    <!-- Esqueletos de carregamento inicial -->
+    <div class="esqueleto"><div class="bloco img"></div><div class="bloco linha"></div><div class="bloco linha curta"></div></div>
+    <div class="esqueleto"><div class="bloco img"></div><div class="bloco linha"></div><div class="bloco linha curta"></div></div>
+    <div class="esqueleto"><div class="bloco img"></div><div class="bloco linha"></div><div class="bloco linha curta"></div></div>
+    <div class="esqueleto"><div class="bloco img"></div><div class="bloco linha"></div><div class="bloco linha curta"></div></div>
+  </div>
+</main>
+
+<footer>
+  <div class="rodape-conteudo">
+    <div>
+      <strong>PagaBarato</strong> — vitrine de ofertas independente.<br>
+      Este site contém links de afiliado. Ao comprar por eles, podemos ganhar uma comissão, sem custo extra pra você.
+    </div>
+    <div id="rodapeAtualizacao">Fonte: planilha de produtos atualizada automaticamente.</div>
+  </div>
+</footer>
+
+<!-- PapaParse: parser de CSV robusto (lida com vírgulas dentro de aspas, etc.) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+<script>
+/* ====================================================================
+   CONFIGURAÇÃO
+   Troque CSV_URL se a planilha mudar. É o link "Publicar na Web > CSV"
+   do Google Sheets, alimentado automaticamente pelo robô PagaBarato.
+   ==================================================================== */
+const CONFIG = {
+  CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNAmjkmIa6ksgjp_AdtTzY3VlcGBWaxbDTkCCCg_hl8FHPQC7S-msKi--auPJ8bSgmVIWRYzNFUw8Y/pub?output=csv",
+  INTERVALO_ATUALIZACAO_MS: 10 * 60 * 1000, // busca a planilha de novo a cada 10 min
+  TEXTO_BOTAO_COMPRAR: "Ver oferta →",       // troque para "Comprar" se preferir
+};
+
+let PRODUTOS = [];         // lista completa, já normalizada
+let TERMO_BUSCA = "";
+let CRITERIO_ORDENACAO = "desconto";
+
+const elGrade = document.getElementById("grade");
+const elContador = document.getElementById("contadorResultados");
+const elStatusTexto = document.getElementById("textoStatus");
+const elCampoBusca = document.getElementById("campoBusca");
+const elOrdenacao = document.getElementById("ordenacao");
+const elRodapeAtualizacao = document.getElementById("rodapeAtualizacao");
+
+/* ====================================================================
+   UTILITÁRIOS
+   ==================================================================== */
+
+// Converte valores de preço vindos da planilha, aceitando tanto
+// "79.90" (ponto) quanto "79,90" (vírgula, padrão BR) ou "1.234,56".
+function converterPreco(valorBruto){
+  if (valorBruto === undefined || valorBruto === null) return 0;
+  let texto = String(valorBruto).trim().replace(/[^\d.,-]/g, "");
+  if (texto === "") return 0;
+
+  if (texto.includes(",") && texto.includes(".")) {
+    texto = texto.replace(/\./g, "").replace(",", ".");
+  } else if (texto.includes(",")) {
+    texto = texto.replace(",", ".");
+  }
+  const numero = parseFloat(texto);
+  return isNaN(numero) ? 0 : numero;
+}
+
+function formatarMoeda(valor){
+  return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function calcularDesconto(original, atual){
+  if (!original || original <= atual) return 0;
+  return Math.round((1 - (atual / original)) * 100);
+}
+
+// Escapa texto antes de qualquer inserção via innerHTML (defesa extra,
+// mesmo usando principalmente createElement/textContent abaixo).
+function escaparTexto(texto){
+  const div = document.createElement("div");
+  div.textContent = texto;
+  return div.innerHTML;
+}
+
+/* ====================================================================
+   BUSCA E NORMALIZAÇÃO DOS DADOS DA PLANILHA
+   ==================================================================== */
+
+async function buscarProdutos(){
+  elStatusTexto.textContent = "atualizando ofertas...";
+
+  try {
+    // Cache-busting: evita que o navegador (ou o cache do Google)
+    // devolva uma versão antiga do CSV a cada atualização automática.
+    const urlComCacheBust = CONFIG.CSV_URL + "&_=" + Date.now();
+
+    const resposta = await fetch(urlComCacheBust, { cache: "no-store" });
+    if (!resposta.ok) throw new Error("Falha ao buscar a planilha (HTTP " + resposta.status + ")");
+
+    const textoCsv = await resposta.text();
+    const resultado = Papa.parse(textoCsv, { header: true, skipEmptyLines: true });
+
+    if (resultado.errors && resultado.errors.length > 0) {
+      console.warn("[PagaBarato] Avisos ao interpretar o CSV:", resultado.errors);
+    }
+
+    PRODUTOS = resultado.data
+      .map(normalizarLinha)
+      .filter(p => p !== null);
+
+    elStatusTexto.textContent = "atualizado agora";
+    elRodapeAtualizacao.textContent =
+      "Última atualização: " + new Date().toLocaleString("pt-BR") +
+      " • " + PRODUTOS.length + " produto(s) na planilha.";
+
+    renderizar();
+
+  } catch (erro) {
+    console.error("[PagaBarato] Erro ao buscar produtos:", erro);
+    elStatusTexto.textContent = "falha na atualização";
+    if (PRODUTOS.length === 0) {
+      mostrarEstadoErro();
+    }
+  }
+}
+
+// Converte uma linha crua do CSV no formato interno usado pela vitrine.
+// Retorna null (e descarta a linha) se faltar link de afiliado ou imagem.
+function normalizarLinha(linha){
+  const linkAfiliado = (linha["Link_Afiliado"] || "").trim();
+  const urlImagem = (linha["URL_Imagem"] || "").trim();
+
+  if (!linkAfiliado) return null; // sem link de afiliado, produto é inútil na vitrine
+
+  const precoOriginal = converterPreco(linha["Preco_Original"]);
+  const precoDesconto = converterPreco(linha["Preco_Desconto"]);
+
+  return {
+    id: (linha["ID_Produto"] || "").trim(),
+    titulo: (linha["Descricao"] || "Produto sem título").trim(),
+    precoOriginal: precoOriginal,
+    precoAtual: precoDesconto || precoOriginal,
+    desconto: calcularDesconto(precoOriginal, precoDesconto || precoOriginal),
+    linkAfiliado: linkAfiliado,
+    imagem: urlImagem,
+    atualizadoEm: (linha["Data_Atualizacao"] || "").trim(),
+  };
+}
+
+/* ====================================================================
+   RENDERIZAÇÃO
+   ==================================================================== */
+
+function obterProdutosFiltradosOrdenados(){
+  let lista = PRODUTOS;
+
+  if (TERMO_BUSCA.trim() !== "") {
+    const termo = TERMO_BUSCA.trim().toLowerCase();
+    lista = lista.filter(p => p.titulo.toLowerCase().includes(termo));
+  }
+
+  const listaOrdenada = [...lista];
+  switch (CRITERIO_ORDENACAO) {
+    case "menor-preco":
+      listaOrdenada.sort((a, b) => a.precoAtual - b.precoAtual);
+      break;
+    case "maior-preco":
+      listaOrdenada.sort((a, b) => b.precoAtual - a.precoAtual);
+      break;
+    case "recentes":
+      listaOrdenada.sort((a, b) => (b.atualizadoEm || "").localeCompare(a.atualizadoEm || ""));
+      break;
+    case "desconto":
+    default:
+      listaOrdenada.sort((a, b) => b.desconto - a.desconto);
+      break;
+  }
+  return listaOrdenada;
+}
+
+function criarCard(produto){
+  const card = document.createElement("article");
+  card.className = "card";
+
+  // --- Bloco de imagem + selo de desconto ---
+  const blocoImagem = document.createElement("div");
+  blocoImagem.className = "card-imagem";
+
+  const img = document.createElement("img");
+  img.src = produto.imagem;
+  img.alt = produto.titulo;
+  img.loading = "lazy";
+  img.onerror = function(){ this.src = "data:image/svg+xml;utf8," + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="#f1ede1"/><text x="50%" y="50%" font-family="sans-serif" font-size="14" fill="#a89f88" text-anchor="middle">sem imagem</text></svg>'
+  ); };
+  blocoImagem.appendChild(img);
+
+  if (produto.desconto > 0) {
+    const selo = document.createElement("span");
+    selo.className = "selo-desconto";
+    selo.textContent = "-" + produto.desconto + "%";
+    blocoImagem.appendChild(selo);
+  }
+
+  card.appendChild(blocoImagem);
+
+  // --- Corpo do card ---
+  const corpo = document.createElement("div");
+  corpo.className = "card-corpo";
+
+  const titulo = document.createElement("h3");
+  titulo.className = "card-titulo";
+  titulo.textContent = produto.titulo;
+  corpo.appendChild(titulo);
+
+  const etiqueta = document.createElement("div");
+  etiqueta.className = "etiqueta-preco";
+  if (produto.desconto > 0) {
+    const original = document.createElement("span");
+    original.className = "preco-original";
+    original.textContent = formatarMoeda(produto.precoOriginal);
+    etiqueta.appendChild(original);
+  }
+  const atual = document.createElement("span");
+  atual.className = "preco-atual";
+  atual.textContent = formatarMoeda(produto.precoAtual);
+  etiqueta.appendChild(atual);
+  corpo.appendChild(etiqueta);
+
+  const botao = document.createElement("a");
+  botao.className = "botao-comprar";
+  botao.href = produto.linkAfiliado;
+  botao.target = "_blank";
+  botao.rel = "nofollow sponsored noopener noreferrer";
+  botao.textContent = CONFIG.TEXTO_BOTAO_COMPRAR;
+  corpo.appendChild(botao);
+
+  card.appendChild(corpo);
+  return card;
+}
+
+function renderizar(){
+  const lista = obterProdutosFiltradosOrdenados();
+  elGrade.innerHTML = "";
+
+  if (PRODUTOS.length === 0) {
+    mostrarEstadoErro();
+    return;
+  }
+
+  if (lista.length === 0) {
+    mostrarEstadoVazio();
+    elContador.textContent = "";
+    return;
+  }
+
+  elContador.textContent = lista.length + " oferta" + (lista.length === 1 ? "" : "s") + " encontrada" + (lista.length === 1 ? "" : "s");
+
+  const fragmento = document.createDocumentFragment();
+  lista.forEach(produto => fragmento.appendChild(criarCard(produto)));
+  elGrade.appendChild(fragmento);
+}
+
+function mostrarEstadoVazio(){
+  elGrade.innerHTML = "";
+  const estado = document.createElement("div");
+  estado.className = "estado";
+  estado.innerHTML = "<h2>Nada por aqui com esse termo</h2><p>Tenta buscar por outra palavra, ou limpa o campo de busca.</p>";
+  elGrade.appendChild(estado);
+}
+
+function mostrarEstadoErro(){
+  elGrade.innerHTML = "";
+  const estado = document.createElement("div");
+  estado.className = "estado";
+  estado.innerHTML = "<h2>Não deu pra carregar as ofertas agora</h2><p>Confira sua conexão — a página tenta de novo automaticamente em alguns minutos.</p>";
+  elGrade.appendChild(estado);
+  elContador.textContent = "";
+}
+
+/* ====================================================================
+   EVENTOS E INICIALIZAÇÃO
+   ==================================================================== */
+
+let temporizadorBusca = null;
+elCampoBusca.addEventListener("input", (e) => {
+  clearTimeout(temporizadorBusca);
+  temporizadorBusca = setTimeout(() => {
+    TERMO_BUSCA = e.target.value;
+    renderizar();
+  }, 180); // pequeno debounce para não re-renderizar a cada tecla
+});
+
+elOrdenacao.addEventListener("change", (e) => {
+  CRITERIO_ORDENACAO = e.target.value;
+  renderizar();
+});
+
+// Primeira busca ao carregar a página
+buscarProdutos();
+
+// Atualização automática periódica (mantém a vitrine sempre fresca)
+setInterval(buscarProdutos, CONFIG.INTERVALO_ATUALIZACAO_MS);
+</script>
+
+</body>
+</html>
