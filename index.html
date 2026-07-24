@@ -39,7 +39,7 @@
     </nav>
     <div class="status-atualizacao" id="statusAtualizacao">
       <span class="ponto"></span>
-      <span id="textoStatus">conectando à planilha...</span>
+      <span id="textoStatus">conectando ao estoque...</span>
     </div>
   </div>
 </header>
@@ -127,7 +127,7 @@
       <a href="privacidade.html">Política de Privacidade</a>
       <a href="seguranca.html">Política de Segurança</a>
     </nav>
-    <div id="rodapeAtualizacao">Fonte: planilha de produtos atualizada automaticamente.</div>
+    <div id="rodapeAtualizacao">Estoque de ofertas atualizado automaticamente.</div>
   </div>
   <div class="rodape-copyright">
     © <span id="anoAtual"></span> PagaBarato / PyTK Solutions. Todos os preços e imagens são de responsabilidade dos vendedores anunciantes na Shopee e podem mudar sem aviso prévio.
@@ -213,7 +213,7 @@ async function buscarProdutos(){
     elStatusTexto.textContent = "atualizado agora";
     elRodapeAtualizacao.textContent =
       "Última atualização: " + new Date().toLocaleString("pt-BR") +
-      " • " + PRODUTOS.length + " produto(s) na planilha.";
+      " • " + PRODUTOS.length + " produto(s) no estoque.";
 
     montarCategorias();
     PAGINA_ATUAL = 1;
