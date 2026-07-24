@@ -1,0 +1,630 @@
+/* ==============================================================
+   TOKENS DE DESIGN — PagaBarato
+   Paleta: verde-mata (marca) + rosa-choque (ação/CTA) + mostarda (selo)
+   Compartilhado por todas as páginas do site.
+   ============================================================== */
+:root{
+  --verde-mata: #163B2C;
+  --verde-mata-2: #1F5039;
+  --verde-brilho: #4FD1A5;
+  --creme: #FBF6EC;
+  --rosa-choque: #FF3D68;
+  --rosa-choque-escuro: #D91E4C;
+  --mostarda: #FFB627;
+  --tinta: #14201A;
+  --tinta-suave: #4A5750;
+  --borda: #E4DCC9;
+  --branco: #FFFFFF;
+
+  --fonte-display: 'Space Grotesk', sans-serif;
+  --fonte-corpo: 'Inter', sans-serif;
+  --fonte-mono: 'Space Mono', monospace;
+
+  --raio: 14px;
+  --sombra: 0 10px 30px -12px rgba(20, 32, 26, 0.25);
+}
+
+*{ box-sizing: border-box; }
+html{ scroll-behavior: smooth; }
+
+body{
+  margin: 0;
+  background: var(--creme);
+  color: var(--tinta);
+  font-family: var(--fonte-corpo);
+  -webkit-font-smoothing: antialiased;
+}
+
+a{ color: inherit; }
+:focus-visible{ outline: 3px solid var(--verde-brilho); outline-offset: 2px; }
+
+/* ==============================================================
+   CABEÇALHO + NAVEGAÇÃO (todas as páginas)
+   ============================================================== */
+header.topo{
+  background: var(--verde-mata);
+  color: var(--creme);
+  padding: 16px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: var(--sombra);
+}
+
+.topo-conteudo{
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.marca{ display: flex; align-items: baseline; gap: 10px; }
+.marca a.logo-link{ text-decoration: none; display: flex; align-items: baseline; gap: 10px; }
+
+.marca .logo{
+  font-family: var(--fonte-display);
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+
+.marca .logo .paga{ color: var(--creme); }
+.marca .logo .barato{ color: var(--mostarda); }
+
+.marca .tagline{
+  font-size: 12.5px;
+  color: rgba(251, 246, 236, 0.65);
+  font-weight: 500;
+}
+
+nav.nav-principal{
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+nav.nav-principal a{
+  font-size: 13.5px;
+  font-weight: 500;
+  color: rgba(251, 246, 236, 0.82);
+  text-decoration: none;
+  padding: 6px 2px;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+nav.nav-principal a:hover,
+nav.nav-principal a.ativo{
+  color: var(--creme);
+  border-color: var(--mostarda);
+}
+
+.status-atualizacao{
+  font-family: var(--fonte-mono);
+  font-size: 12px;
+  color: var(--verde-brilho);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.status-atualizacao .ponto{
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--verde-brilho);
+  box-shadow: 0 0 0 0 rgba(79, 209, 165, 0.6);
+  animation: pulsar 2s infinite;
+}
+
+@keyframes pulsar{
+  0%{ box-shadow: 0 0 0 0 rgba(79, 209, 165, 0.55); }
+  70%{ box-shadow: 0 0 0 8px rgba(79, 209, 165, 0); }
+  100%{ box-shadow: 0 0 0 0 rgba(79, 209, 165, 0); }
+}
+
+/* ==============================================================
+   FAIXA DE TRANSPARÊNCIA (obrigatória para tráfego pago)
+   ============================================================== */
+.faixa-transparencia{
+  background: var(--mostarda);
+  color: var(--tinta);
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 8px 16px;
+  line-height: 1.4;
+}
+
+.faixa-transparencia strong{ font-weight: 700; }
+
+/* ==============================================================
+   HERO (página inicial)
+   ============================================================== */
+.hero{
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 48px 24px 24px;
+}
+
+.hero h1{
+  font-family: var(--fonte-display);
+  font-weight: 700;
+  font-size: clamp(34px, 5.5vw, 58px);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  margin: 0 0 14px;
+}
+
+.hero h1 .risco{
+  text-decoration: line-through;
+  text-decoration-color: var(--rosa-choque);
+  text-decoration-thickness: 4px;
+  color: var(--tinta-suave);
+}
+
+.hero p.sub{
+  font-size: 17px;
+  color: var(--tinta-suave);
+  max-width: 560px;
+  margin: 0 0 28px;
+}
+
+/* ==============================================================
+   CONTROLES: busca, ordenação, categorias
+   ============================================================== */
+.barra-controle{
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.campo-busca{ flex: 1 1 280px; position: relative; }
+
+.campo-busca input{
+  width: 100%;
+  padding: 14px 16px 14px 44px;
+  border-radius: 999px;
+  border: 2px solid var(--borda);
+  background: var(--branco);
+  font-family: var(--fonte-corpo);
+  font-size: 15px;
+  color: var(--tinta);
+}
+
+.campo-busca input:focus{ border-color: var(--verde-mata-2); }
+
+.campo-busca svg{
+  position: absolute; left: 16px; top: 50%;
+  transform: translateY(-50%); opacity: 0.5;
+}
+
+select#ordenacao{
+  padding: 13px 16px;
+  border-radius: 999px;
+  border: 2px solid var(--borda);
+  background: var(--branco);
+  font-family: var(--fonte-corpo);
+  font-size: 14px;
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+.faixa-categorias{
+  max-width: 1180px;
+  margin: 18px auto 0;
+  padding: 0 24px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.chip-categoria{
+  font-family: var(--fonte-corpo);
+  font-size: 13.5px;
+  font-weight: 600;
+  background: var(--branco);
+  color: var(--tinta-suave);
+  border: 2px solid var(--borda);
+  border-radius: 999px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.chip-categoria:hover{ border-color: var(--verde-mata-2); color: var(--tinta); }
+
+.chip-categoria.ativo{
+  background: var(--verde-mata);
+  border-color: var(--verde-mata);
+  color: var(--creme);
+}
+
+.contador-resultados{
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 14px 24px 8px;
+  font-size: 13.5px;
+  color: var(--tinta-suave);
+  font-family: var(--fonte-mono);
+}
+
+/* ==============================================================
+   GRADE DE PRODUTOS
+   ============================================================== */
+main.vitrine{ max-width: 1180px; margin: 0 auto; padding: 12px 24px 40px; }
+
+.grade{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 22px;
+}
+
+.card{
+  background: var(--branco);
+  border-radius: var(--raio);
+  overflow: hidden;
+  box-shadow: var(--sombra);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  border: 1px solid var(--borda);
+}
+
+.card:hover{ transform: translateY(-4px); box-shadow: 0 16px 34px -14px rgba(20, 32, 26, 0.32); }
+
+.card-imagem{ position: relative; aspect-ratio: 1 / 1; background: #f1ede1; overflow: hidden; }
+.card-imagem img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.selo-desconto{
+  position: absolute; top: 10px; left: 10px;
+  background: var(--mostarda); color: var(--tinta);
+  font-family: var(--fonte-mono); font-weight: 700; font-size: 13px;
+  padding: 6px 10px; border-radius: 8px;
+  border: 2px dashed rgba(20, 32, 26, 0.55);
+  transform: rotate(-7deg); letter-spacing: 0.02em;
+}
+
+.selo-categoria{
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(22, 59, 44, 0.88); color: var(--creme);
+  font-size: 11px; font-weight: 600;
+  padding: 4px 9px; border-radius: 6px;
+  max-width: 70%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.card-corpo{ padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+
+.card-titulo{
+  font-size: 14.5px; font-weight: 500; line-height: 1.35; color: var(--tinta); margin: 0;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; min-height: 2.7em;
+}
+
+.etiqueta-preco{ display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+
+.preco-original{ font-family: var(--fonte-mono); font-size: 12.5px; color: var(--tinta-suave); text-decoration: line-through; }
+
+.preco-atual{
+  font-family: var(--fonte-mono); font-weight: 700; font-size: 20px; color: var(--verde-mata-2);
+  background: rgba(79, 209, 165, 0.14);
+  padding: 3px 10px 3px 16px; border-radius: 4px;
+  -webkit-mask-image: radial-gradient(circle 3.5px at 8px 50%, transparent 99%, black 100%);
+          mask-image: radial-gradient(circle 3.5px at 8px 50%, transparent 99%, black 100%);
+}
+
+.botao-comprar{
+  margin-top: auto; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--rosa-choque); color: var(--branco);
+  font-family: var(--fonte-corpo); font-weight: 600; font-size: 14.5px;
+  text-decoration: none; padding: 12px 16px; border-radius: 10px;
+  transition: background 0.15s ease;
+}
+
+.botao-comprar:hover{ background: var(--rosa-choque-escuro); }
+
+.aviso-preco-card{
+  font-size: 10.5px; color: var(--tinta-suave); text-align: center; margin: -4px 0 0;
+}
+
+/* ==============================================================
+   ESTADOS: carregando / vazio / erro
+   ============================================================== */
+.estado{ grid-column: 1 / -1; text-align: center; padding: 70px 20px; color: var(--tinta-suave); }
+.estado h2{ font-family: var(--fonte-display); font-size: 22px; color: var(--tinta); margin: 0 0 8px; }
+.estado p{ margin: 0; font-size: 14.5px; }
+
+.esqueleto{ background: var(--branco); border-radius: var(--raio); overflow: hidden; border: 1px solid var(--borda); }
+.esqueleto .bloco{
+  background: linear-gradient(90deg, #efe9da 25%, #f7f3e8 37%, #efe9da 63%);
+  background-size: 400% 100%; animation: brilho 1.4s ease infinite;
+}
+.esqueleto .bloco.img{ aspect-ratio: 1/1; }
+.esqueleto .bloco.linha{ height: 12px; margin: 16px 16px 0; border-radius: 4px; }
+.esqueleto .bloco.linha.curta{ width: 60%; margin-bottom: 16px; }
+
+@keyframes brilho{ 0%{ background-position: 100% 50%; } 100%{ background-position: 0 50%; } }
+
+/* ==============================================================
+   PAGINAÇÃO
+   ============================================================== */
+.paginacao{
+  display: flex; justify-content: center; align-items: center; gap: 8px;
+  flex-wrap: wrap; padding: 30px 24px 10px;
+}
+
+.paginacao button{
+  font-family: var(--fonte-mono); font-size: 13.5px; font-weight: 700;
+  min-width: 38px; height: 38px; padding: 0 10px;
+  border-radius: 8px; border: 2px solid var(--borda);
+  background: var(--branco); color: var(--tinta);
+  cursor: pointer; transition: all 0.15s ease;
+}
+
+.paginacao button:hover:not(:disabled){ border-color: var(--verde-mata-2); }
+
+.paginacao button.ativo{
+  background: var(--verde-mata); border-color: var(--verde-mata); color: var(--creme);
+}
+
+.paginacao button:disabled{ opacity: 0.35; cursor: not-allowed; }
+
+.paginacao .reticencias{
+  font-family: var(--fonte-mono); color: var(--tinta-suave); padding: 0 4px;
+}
+
+/* ==============================================================
+   SEÇÃO DE PROMOÇÕES POR E-MAIL
+   ============================================================== */
+.secao-promo{
+  max-width: 1180px;
+  margin: 20px auto 50px;
+  padding: 0 24px;
+}
+
+.caixa-promo{
+  background: var(--verde-mata);
+  color: var(--creme);
+  border-radius: var(--raio);
+  padding: 36px 30px;
+  box-shadow: var(--sombra);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 26px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.caixa-promo .texto-promo{ flex: 1 1 280px; }
+
+.caixa-promo h2{
+  font-family: var(--fonte-display);
+  font-size: 24px;
+  margin: 0 0 8px;
+}
+
+.caixa-promo p{
+  margin: 0;
+  font-size: 14px;
+  color: rgba(251, 246, 236, 0.75);
+  max-width: 420px;
+}
+
+form#formPromo{
+  flex: 1 1 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.linha-form-promo{
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#formPromo input[type="email"]{
+  flex: 1 1 220px;
+  padding: 13px 16px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  font-family: var(--fonte-corpo);
+  font-size: 14.5px;
+}
+
+#formPromo input[type="email"]:invalid:not(:placeholder-shown){
+  border-color: var(--rosa-choque);
+}
+
+#formPromo button{
+  background: var(--mostarda);
+  color: var(--tinta);
+  border: none;
+  border-radius: 10px;
+  padding: 13px 22px;
+  font-family: var(--fonte-corpo);
+  font-weight: 700;
+  font-size: 14.5px;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+  white-space: nowrap;
+}
+
+#formPromo button:hover{ filter: brightness(1.08); }
+#formPromo button:disabled{ opacity: 0.6; cursor: not-allowed; }
+
+.consentimento-promo{
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(251, 246, 236, 0.75);
+  line-height: 1.4;
+}
+
+.consentimento-promo input{ margin-top: 2px; }
+.consentimento-promo a{ color: var(--verde-brilho); text-decoration: underline; }
+
+.mensagem-promo{
+  font-size: 13px;
+  font-weight: 600;
+  min-height: 18px;
+}
+
+.mensagem-promo.sucesso{ color: var(--verde-brilho); }
+.mensagem-promo.erro{ color: #FF8FA8; }
+
+.dica-gmail{
+  font-size: 11.5px;
+  color: rgba(251, 246, 236, 0.6);
+}
+
+/* ==============================================================
+   RODAPÉ (todas as páginas)
+   ============================================================== */
+footer{
+  background: var(--verde-mata);
+  color: rgba(251, 246, 236, 0.7);
+  padding: 34px 24px;
+  font-size: 13px;
+}
+
+footer .rodape-conteudo{
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+footer strong{ color: var(--creme); }
+
+footer .rodape-coluna{ max-width: 420px; }
+
+footer nav.rodape-links{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+footer nav.rodape-links a{
+  color: rgba(251, 246, 236, 0.75);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+footer nav.rodape-links a:hover{ color: var(--mostarda); }
+
+footer .rodape-copyright{
+  max-width: 1180px;
+  margin: 24px auto 0;
+  padding-top: 18px;
+  border-top: 1px solid rgba(251, 246, 236, 0.15);
+  font-size: 11.5px;
+  color: rgba(251, 246, 236, 0.5);
+}
+
+/* ==============================================================
+   PÁGINAS DE CONTEÚDO (privacidade, segurança, FAQ)
+   ============================================================== */
+main.conteudo-pagina{
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 48px 24px 70px;
+}
+
+main.conteudo-pagina h1{
+  font-family: var(--fonte-display);
+  font-size: clamp(28px, 4vw, 40px);
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+}
+
+main.conteudo-pagina .atualizado-em{
+  font-family: var(--fonte-mono);
+  font-size: 12.5px;
+  color: var(--tinta-suave);
+  margin: 0 0 34px;
+}
+
+main.conteudo-pagina h2{
+  font-family: var(--fonte-display);
+  font-size: 21px;
+  margin: 34px 0 10px;
+  color: var(--verde-mata-2);
+}
+
+main.conteudo-pagina p, main.conteudo-pagina li{
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--tinta);
+}
+
+main.conteudo-pagina ul{ padding-left: 20px; }
+main.conteudo-pagina a{ color: var(--verde-mata-2); font-weight: 600; }
+
+.caixa-destaque{
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-left: 4px solid var(--verde-brilho);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin: 18px 0;
+  font-size: 14px;
+}
+
+/* FAQ (accordion) */
+.item-faq{
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.item-faq summary{
+  cursor: pointer;
+  list-style: none;
+  padding: 16px 18px;
+  font-family: var(--fonte-corpo);
+  font-weight: 600;
+  font-size: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.item-faq summary::-webkit-details-marker{ display: none; }
+
+.item-faq summary::after{
+  content: "+";
+  font-family: var(--fonte-mono);
+  font-size: 20px;
+  color: var(--verde-mata-2);
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.item-faq[open] summary::after{ transform: rotate(45deg); }
+
+.item-faq .resposta-faq{
+  padding: 0 18px 18px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--tinta-suave);
+}
+
+@media (max-width: 560px){
+  .hero{ padding-top: 36px; }
+  .topo-conteudo{ justify-content: center; text-align: center; }
+  nav.nav-principal{ justify-content: center; }
+  .caixa-promo{ padding: 26px 20px; }
+}
