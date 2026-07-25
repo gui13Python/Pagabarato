@@ -48,6 +48,24 @@
   🔎 O <strong>PagaBarato</strong> é uma vitrine independente de comparação de ofertas. Não somos a Shopee nem qualquer loja anunciada aqui — apenas indicamos ofertas públicas e podemos ganhar comissão por compras feitas através dos nossos links.
 </div>
 
+<div class="banner-destaque" id="bannerDestaque" hidden>
+  <button type="button" class="banner-fechar" id="bannerFechar" aria-label="Fechar banner de oferta">✕</button>
+  <div class="banner-imagem">
+    <img id="bannerImagem" src="" alt="">
+  </div>
+  <div class="banner-corpo">
+    <span class="banner-etiqueta" id="bannerEtiqueta">🔥 Oferta em destaque</span>
+    <h2 class="banner-titulo" id="bannerTitulo"></h2>
+    <div class="banner-precos">
+      <span class="banner-preco-original" id="bannerPrecoOriginal"></span>
+      <span class="banner-preco-atual" id="bannerPrecoAtual"></span>
+      <span class="banner-desconto" id="bannerDesconto"></span>
+    </div>
+    <p class="banner-aviso">Preço pode mudar a qualquer momento no app da Shopee — confira antes de perder.</p>
+    <a class="banner-botao" id="bannerBotao" href="#" target="_blank" rel="nofollow sponsored noopener noreferrer">Ver oferta na Shopee →</a>
+  </div>
+</div>
+
 <section class="hero">
   <h1>Achou. <span class="risco">Pagou caro?</span><br>Não aqui.</h1>
   <p class="sub">Ofertas da Shopee, escolhidas e atualizadas automaticamente todos os dias. Você clica, a gente te leva direto pra oferta — a compra e o pagamento são feitos sempre no site oficial da Shopee.</p>
@@ -61,10 +79,10 @@
       <input type="text" id="campoBusca" placeholder="Buscar produto, ex: fone bluetooth..." autocomplete="off">
     </div>
     <select id="ordenacao">
+      <option value="recentes" selected>Mais recentes</option>
       <option value="desconto">Maior desconto</option>
       <option value="menor-preco">Menor preço</option>
       <option value="maior-preco">Maior preço</option>
-      <option value="recentes">Mais recentes</option>
     </select>
   </div>
 </section>
@@ -143,7 +161,7 @@
 const CONFIG = {
   CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNAmjkmIa6ksgjp_AdtTzY3VlcGBWaxbDTkCCCg_hl8FHPQC7S-msKi--auPJ8bSgmVIWRYzNFUw8Y/pub?output=csv",
   INTERVALO_ATUALIZACAO_MS: 10 * 60 * 1000,
-  TEXTO_BOTAO_COMPRAR: "Ver oferta →",
+  TEXTO_BOTAO_COMPRAR: "Ver oferta na Shopee →",
   ITENS_POR_PAGINA: 24,
   CATEGORIA_PADRAO: "Todas",
   FORMSPREE_ENDPOINT: "https://formspree.io/f/meeypjzz",
@@ -151,7 +169,7 @@ const CONFIG = {
 
 let PRODUTOS = [];
 let TERMO_BUSCA = "";
-let CRITERIO_ORDENACAO = "desconto";
+let CRITERIO_ORDENACAO = "recentes";
 let CATEGORIA_ATIVA = CONFIG.CATEGORIA_PADRAO;
 let PAGINA_ATUAL = 1;
 
@@ -209,6 +227,7 @@ async function buscarProdutos(){
     }
 
     PRODUTOS = resultado.data.map(normalizarLinha).filter(p => p !== null);
+    PRODUTOS = removerProdutosQuaseDuplicados(PRODUTOS);
 
     elStatusTexto.textContent = "atualizado agora";
     elRodapeAtualizacao.textContent =
@@ -216,6 +235,7 @@ async function buscarProdutos(){
       " • " + PRODUTOS.length + " produto(s) no estoque.";
 
     montarCategorias();
+    montarBanner();
     PAGINA_ATUAL = 1;
     renderizar();
 
@@ -237,6 +257,12 @@ function normalizarLinha(linha){
   const precoDesconto = converterPreco(linha["Preco_Desconto"]);
   const categoria = (linha["Categoria"] || "").trim() || "Geral";
 
+  // Produto sem preço nenhum E sem imagem é sinal de link que o robô não
+  // conseguiu resolver (ex: link curto da Shopee bloqueado no scraping).
+  // Não exibe na vitrine em vez de mostrar "Produto XXXX" com R$ 0,00.
+  const semPrecoAlgum = precoOriginal <= 0 && precoDesconto <= 0;
+  if (semPrecoAlgum && !urlImagem) return null;
+
   return {
     id: (linha["ID_Produto"] || "").trim(),
     titulo: (linha["Descricao"] || "Produto sem título").trim(),
@@ -253,6 +279,59 @@ function normalizarLinha(linha){
 /* ====================================================================
    CATEGORIAS
    ==================================================================== */
+/* ====================================================================
+   REMOÇÃO DE PRODUTOS QUASE-DUPLICADOS
+   Quando o mesmo produto é anunciado por vários vendedores, os títulos
+   ficam bem parecidos ("Colete Tricot Masculino Social Inverno Pavani
+   em Lã com..." / "...Lã Quente Elegante..."). Em vez de comparar
+   título inteiro, usamos uma "assinatura": as 5 palavras mais
+   relevantes do título (sem "com", "de", "para" etc.), ordenadas.
+   Produtos com a mesma assinatura viram duplicados — fica só o de
+   maior desconto (e, em empate, o de menor preço).
+   ==================================================================== */
+const PALAVRAS_IGNORADAS_DEDUP = new Set([
+  "de", "da", "do", "das", "dos", "com", "em", "para", "e", "a", "o",
+  "as", "os", "no", "na", "por", "kit", "novo", "nova", "original",
+]);
+
+function assinaturaTitulo(titulo){
+  if (!titulo) return "";
+  const normalizado = titulo
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s]/g, " ");
+
+  const palavrasRelevantes = normalizado
+    .split(/\s+/)
+    .filter(p => p && !PALAVRAS_IGNORADAS_DEDUP.has(p) && isNaN(p));
+
+  return palavrasRelevantes.slice(0, 5).sort().join(" ");
+}
+
+function removerProdutosQuaseDuplicados(produtos){
+  const melhorPorAssinatura = new Map();
+  const semAssinatura = [];
+
+  for (const produto of produtos) {
+    const assinatura = assinaturaTitulo(produto.titulo);
+    if (!assinatura) { semAssinatura.push(produto); continue; }
+
+    const existente = melhorPorAssinatura.get(assinatura);
+    if (!existente) {
+      melhorPorAssinatura.set(assinatura, produto);
+      continue;
+    }
+
+    const ganhaPorDesconto = produto.desconto > existente.desconto;
+    const empatouEGanhaPorPreco = produto.desconto === existente.desconto && produto.precoAtual < existente.precoAtual;
+    if (ganhaPorDesconto || empatouEGanhaPorPreco) {
+      melhorPorAssinatura.set(assinatura, produto);
+    }
+  }
+
+  return [...melhorPorAssinatura.values(), ...semAssinatura];
+}
+
 function montarCategorias(){
   const categorias = Array.from(new Set(PRODUTOS.map(p => p.categoria))).sort((a, b) => a.localeCompare(b, "pt-BR"));
   elFaixaCategorias.innerHTML = "";
@@ -275,10 +354,80 @@ function criarChipCategoria(nome){
     PAGINA_ATUAL = 1;
     document.querySelectorAll(".chip-categoria").forEach(c => c.classList.remove("ativo"));
     botao.classList.add("ativo");
+    if (nome !== CONFIG.CATEGORIA_PADRAO) salvarCategoriaPreferida(nome);
     renderizar();
   });
   return botao;
 }
+
+/* ====================================================================
+   PREFERÊNCIA DE CATEGORIA (baseada em cliques reais no próprio site,
+   guardada só no navegador da pessoa — nunca lemos cookies de terceiros
+   nem dados da Shopee)
+   ==================================================================== */
+const CHAVE_CATEGORIA_PREFERIDA = "pb_categoria_preferida";
+const CHAVE_BANNER_FECHADO = "pb_banner_fechado";
+
+function salvarCategoriaPreferida(categoria){
+  if (!categoria) return;
+  try { localStorage.setItem(CHAVE_CATEGORIA_PREFERIDA, categoria); } catch (erro) { /* localStorage indisponível, ignora */ }
+}
+
+function obterCategoriaPreferida(){
+  try { return localStorage.getItem(CHAVE_CATEGORIA_PREFERIDA); } catch (erro) { return null; }
+}
+
+/* ====================================================================
+   BANNER DE OFERTA EM DESTAQUE
+   Não bloqueia a navegação e sempre usa o link de afiliado real do
+   produto, vindo da própria planilha. Prioriza a categoria que a
+   pessoa mais clicou aqui no site; se não houver histórico, sorteia
+   entre as ofertas com maior desconto do dia.
+   ==================================================================== */
+function montarBanner(){
+  const elBanner = document.getElementById("bannerDestaque");
+  if (!elBanner) return;
+
+  try {
+    if (sessionStorage.getItem(CHAVE_BANNER_FECHADO) === "1") return;
+  } catch (erro) { /* sessionStorage indisponível, segue normalmente */ }
+
+  const comDesconto = PRODUTOS.filter(p => p.desconto > 0 && p.imagem);
+  if (comDesconto.length === 0) return;
+
+  const candidatos = [...comDesconto].sort((a, b) => b.desconto - a.desconto).slice(0, 15);
+
+  const categoriaPreferida = obterCategoriaPreferida();
+  let poolEscolha = candidatos;
+  if (categoriaPreferida) {
+    const daCategoria = comDesconto.filter(p => p.categoria === categoriaPreferida);
+    if (daCategoria.length > 0) poolEscolha = daCategoria;
+  }
+
+  const produtoEscolhido = poolEscolha[Math.floor(Math.random() * poolEscolha.length)];
+  if (!produtoEscolhido) return;
+
+  document.getElementById("bannerImagem").src = produtoEscolhido.imagem;
+  document.getElementById("bannerImagem").alt = produtoEscolhido.titulo;
+  document.getElementById("bannerEtiqueta").textContent = categoriaPreferida && poolEscolha === candidatos.filter(p => p.categoria === categoriaPreferida)
+    ? "🔥 Separamos pra você em " + produtoEscolhido.categoria
+    : "🔥 Oferta em destaque hoje";
+  document.getElementById("bannerTitulo").textContent = produtoEscolhido.titulo;
+  document.getElementById("bannerPrecoOriginal").textContent = formatarMoeda(produtoEscolhido.precoOriginal);
+  document.getElementById("bannerPrecoAtual").textContent = formatarMoeda(produtoEscolhido.precoAtual);
+  document.getElementById("bannerDesconto").textContent = "-" + produtoEscolhido.desconto + "%";
+
+  const botaoBanner = document.getElementById("bannerBotao");
+  botaoBanner.href = produtoEscolhido.linkAfiliado;
+  botaoBanner.addEventListener("click", () => salvarCategoriaPreferida(produtoEscolhido.categoria));
+
+  elBanner.hidden = false;
+}
+
+document.getElementById("bannerFechar").addEventListener("click", () => {
+  document.getElementById("bannerDestaque").hidden = true;
+  try { sessionStorage.setItem(CHAVE_BANNER_FECHADO, "1"); } catch (erro) { /* ignora */ }
+});
 
 /* ====================================================================
    FILTRAGEM, ORDENAÇÃO E PAGINAÇÃO
@@ -366,6 +515,7 @@ function criarCard(produto){
   botao.target = "_blank";
   botao.rel = "nofollow sponsored noopener noreferrer";
   botao.textContent = CONFIG.TEXTO_BOTAO_COMPRAR;
+  botao.addEventListener("click", () => salvarCategoriaPreferida(produto.categoria));
   corpo.appendChild(botao);
 
   const aviso = document.createElement("p");
