@@ -385,6 +385,8 @@ function obterCategoriaPreferida(){
    entre as ofertas com maior desconto do dia.
    ==================================================================== */
 function montarBanner(){
+  // Exemplo de como estruturar a renderização do Banner:
+  
   const elBanner = document.getElementById("bannerDestaque");
   if (!elBanner) return;
 
@@ -554,7 +556,13 @@ function renderizar(){
   elGrade.appendChild(fragmento);
 
   renderizarPaginacao(totalPaginas);
-  window.scrollTo({ top: elGrade.offsetTop - 90, behavior: "smooth" });
+  if (PAGINA_ATUAL > 1) {
+    window.scrollTo({ top: elGrade.offsetTop - 90, behavior: "smooth" });
+  } else {
+    // Garante que o topo da página (onde fica o banner) fique 100% visível na abertura
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
 }
 
 function renderizarPaginacao(totalPaginas){
@@ -701,6 +709,62 @@ formPromo.addEventListener("submit", async (evento) => {
     botaoPromo.textContent = "Quero receber";
   }
 });
+// Variable de controle para exibir o modal apenas uma vez por sessão
+let popupExibido = false;
+
+// Detecta intenção de saída no computador (mouse movendo para cima fora do documento)
+document.addEventListener("mouseleave", function(e) {
+  if (e.clientY < 0 && !popupExibido && PRODUTOS.length > 0) {
+    popupExibido = true;
+    exibirModalDestaque();
+  }
+});
+
+// ##################################### ajuste
+
+function exibirModalDestaque() {
+  const produtosComLink = PRODUTOS.filter(p => p.linkAfiliado);
+  if (produtosComLink.length === 0) return;
+
+  const produtoModal = produtosComLink[0];
+
+  // Identifica os valores independente das chaves usadas no seu objeto
+  const precoAntigo = produtoModal.precoDe || produtoModal.precoOriginal || produtoModal.preco_de || "";
+  const precoAtual = produtoModal.precoPor || produtoModal.preco || produtoModal.precoPromocional || produtoModal.preco_por || "";
+
+  // Monta o bloco de preço apenas se os valores existirem
+  let htmlPreco = "";
+  if (precoAntigo && precoAtual) {
+    htmlPreco = `De <s>R$ ${precoAntigo}</s> por <strong>R$ ${precoAtual}</strong>`;
+  } else if (precoAtual) {
+    htmlPreco = `Por apenas <strong>R$ ${precoAtual}</strong>`;
+  } else {
+    htmlPreco = `<strong>Aproveite a oferta especial!</strong>`;
+  }
+
+  const modalHTML = `
+    <div id="modalExitIntent" class="modal-overlay">
+      <div class="modal-conteudo">
+        <button class="modal-fechar" onclick="fecharModalDestaque()">×</button>
+        <span class="modal-tag">🔥 Espera! Não vá embora sem ver isso</span>
+        <h3>${produtoModal.titulo || "Oferta Imperdível na Shopee"}</h3>
+        <p class="modal-preco">${htmlPreco}</p>
+        <a href="${produtoModal.linkAfiliado}" target="_blank" rel="noopener noreferrer" class="btn-modal-shopee" onclick="fecharModalDestaque()">
+          Ver Oferta na Shopee →
+        </a>
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+}
+function fecharModalDestaque() {
+  const modal = document.getElementById("modalExitIntent");
+  if (modal) modal.remove();
+}
+
+
+
 </script>
 
 </body>
